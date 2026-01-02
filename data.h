@@ -11,17 +11,11 @@
 #include <algorithm>
 
 #include "exception_own.h"
+#include "file_type.h"
 #include "data_helper.h"
 
 extern text_basic* text;
 
-enum file_type
-{
-	unknown,
-	stl_ascii,
-	stl_binary,
-	openscad,
-};
 
 class vertex_object_string
 {
