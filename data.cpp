@@ -138,7 +138,9 @@ void data::convert ()
 }
 
 void data::read_stl_ascii ()
-{}
+{
+	throw error_input_type_undefined();
+}
 
 void data::read_stl_binary ()
 {

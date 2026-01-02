@@ -53,6 +53,9 @@ public:
 	std::string input_type_unknown (std::string filename) const override { return std::string() +
 		"Die Eingabedatei \"" + filename + "\" ist keine STL-Datei.\n"
 	;}
+	std::string input_type_undefined (std::string filename) const override { return std::string() +
+		"Kann den Inhalt der Eingabedatei \"" + filename + "\" (noch) nicht verarbeiten.\n"
+	;}
 } text_DE;
 
 #endif // _text_de_h_
