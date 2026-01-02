@@ -106,7 +106,7 @@ type read_value_little (std::string::iterator& p, const std::string::iterator& e
 		type value = 0;
 		char  bytes[sizeof(type)];
 	} field;
-	for (int i=0; i<sizeof(type); ++i, ++p)
+	for (int i=0; i<(int)sizeof(type); ++i, ++p)
 	{
 		if (p==end) return 0;
 		field.bytes[i] = *p;
@@ -121,7 +121,7 @@ type read_value_big (std::string::iterator& p, const std::string::iterator& end)
 		type value = 0;
 		char  bytes[sizeof(type)];
 	} field;
-	for (int i=sizeof(type)-1; i>=0; --i, ++p)
+	for (int i=(int)sizeof(type)-1; i>=0; --i, ++p)
 	{
 		if (p==end) return 0;
 		field.bytes[i] = *p;

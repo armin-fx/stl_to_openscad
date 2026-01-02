@@ -61,7 +61,7 @@ void data::prepare_and_identify_files ()
 			throw error_file_input_not_found();
 		}
 	}
-	if (output_filename != "-");
+	if (output_filename != "-")
 	{
 		if (! do_overwrite) if (file_exist(output_filename))
 		{
