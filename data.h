@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <regex>
 
 #include "exception_own.h"
 #include "file_type.h"

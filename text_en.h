@@ -55,6 +55,9 @@ public:
 	std::string input_type_undefined (std::string filename) const override { return std::string() +
 		"Can not (yet) process the contents of the input file \"" + filename + "\".\n"
 	;}
+	std::string input_empty (std::string filename) const override { return std::string() +
+		"Input file \"" + filename + "\" contains no 3D model.\n"
+	;}
 } text_EN;
 
 #endif // _text_en_h_

@@ -23,5 +23,6 @@ class error_file_output_found    : public exception_standard {};
 class error_file_output_not_open : public exception_standard {};
 class error_input_type_unknown   : public exception_standard {};
 class error_input_type_undefined : public exception_standard {};
+class error_input_empty          : public exception_standard {};
 
 #endif // _exception_own_

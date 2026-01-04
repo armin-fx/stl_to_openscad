@@ -139,7 +139,32 @@ void data::convert ()
 
 void data::read_stl_ascii ()
 {
-	throw error_input_type_undefined();
+	std::regex  pattern_model ("solid.*\\s?([\\s\\S]*?)endsolid");
+	std::smatch matches_model;
+	
+	if (! std::regex_search(input_as_string, matches_model, pattern_model))
+		throw error_input_empty();
+	
+	std::string model_data = matches_model[1];
+	
+	std::regex  pattern_vertex ("facet.*\\s?[\\s\\S]*?vertex(.*)[\\s\\S]*?vertex(.*)[\\s\\S]*?vertex(.*)[\\s\\S]*?endfacet");
+	std::smatch matches_vertex;
+	
+	std::regex pattern_number ("\\s(.*)\\s(.*)\\s(.*)\\s(.*)\\s(.*)\\s(.*)\\s(.*)\\s(.*)\\s(.*)");
+	
+	while (std::regex_search(model_data, matches_vertex, pattern_vertex))
+	{
+		model_data = matches_vertex.suffix().str();
+		
+		std::string vertex_data = matches_vertex[1].str() + matches_vertex[2].str() + matches_vertex[3].str();
+		std::smatch n;
+		if (! std::regex_search(vertex_data, n, pattern_number))
+			continue;
+			
+		stl.vertices.push_back( vertex_object_string(n[1],n[2],n[3]) );
+		stl.vertices.push_back( vertex_object_string(n[4],n[5],n[6]) );
+		stl.vertices.push_back( vertex_object_string(n[7],n[8],n[9]) );
+	}
 }
 
 void data::read_stl_binary ()

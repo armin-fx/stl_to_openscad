@@ -56,6 +56,9 @@ public:
 	std::string input_type_undefined (std::string filename) const override { return std::string() +
 		"Kann den Inhalt der Eingabedatei \"" + filename + "\" (noch) nicht verarbeiten.\n"
 	;}
+	std::string input_empty (std::string filename) const override { return std::string() +
+		"Die Eingabedatei \"" + filename + "\" enthält kein 3D Modell.\n"
+	;}
 } text_DE;
 
 #endif // _text_de_h_

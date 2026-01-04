@@ -69,6 +69,11 @@ int main(int argc, char **argv)
 		std::cerr << text->input_type_undefined(d.input_filename) << std::flush;
 		return EXIT_FAILURE;
 	}
+	catch(error_input_empty&)
+	{
+		std::cerr << text->input_empty(d.input_filename) << std::flush;
+		return EXIT_FAILURE;
+	}
 	catch(std::exception& e)
 	{
 		std::cerr << text->error_other(e.what()) << std::flush;

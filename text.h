@@ -21,6 +21,7 @@ public:
 	virtual std::string file_output_not_open (std::string filename) const = 0;
 	virtual std::string input_type_unknown (std::string filename) const = 0;
 	virtual std::string input_type_undefined (std::string filename) const = 0;
+	virtual std::string input_empty (std::string filename) const = 0;
 };
 
 class text_basic_type : public text_list
