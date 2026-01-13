@@ -17,47 +17,30 @@
 
 extern text_basic* text;
 
-
-class vertex_object_string
+template <typename floating>
+class vertex_object_operation
 {
 public:
-	std::string vertex[3];
-private:
-	void selfcopy (const vertex_object_string& other)
+	floating vertex[3];
+	
+protected:
+	void selfcopy (const vertex_object_operation& other)
 	{
 		for (int i=0; i<3; ++i)
-			vertex[i] = other.vertex[i];
+			this->vertex[i] = other.vertex[i];
 	}
-public:	
-	vertex_object_string (const vertex_object_string& other)
-	{	selfcopy(other); }
-	vertex_object_string& operator= (const vertex_object_string& other)
-	{	selfcopy(other); return *this; }
-	vertex_object_string (std::string x, std::string y, std::string z)
-	{
-		vertex[0] = x;
-		vertex[1] = y;
-		vertex[2] = z;
-	}
-	template <typename floating>
-	vertex_object_string (floating x, floating y, floating z)
-	{
-		vertex[0] = value_to_string(x);
-		vertex[1] = value_to_string(y);
-		vertex[2] = value_to_string(z);
-	}
-	
-	inline std::string& operator[] (std::size_t index)
+public:
+	inline floating& operator[] (std::size_t index)
 	{	return vertex[index]; }
 	
-	inline bool operator< (const vertex_object_string& a)
+	inline bool operator< (const vertex_object_operation& a)
 	{
 		if (vertex[0]!=a.vertex[0]) {return vertex[0]<a.vertex[0];}
 		if (vertex[1]!=a.vertex[1]) {return vertex[1]<a.vertex[1];}
 		                             return vertex[2]<a.vertex[2];
 	}
 	
-	inline bool operator== (const vertex_object_string& a)
+	inline bool operator== (const vertex_object_operation& a)
 	{
 		if (vertex[0]!=a.vertex[0]) {return false;}
 		if (vertex[1]!=a.vertex[1]) {return false;}
@@ -66,17 +49,31 @@ public:
 	}
 };
 
-template <typename floating>
-class vertex_object_value
+class vertex_object_string : public vertex_object_operation<std::string>
 {
-public:
-	floating vertex[3];
-private:
-	void selfcopy (const vertex_object_value& other)
+public:	
+	vertex_object_string (const vertex_object_string& other)
+	{	selfcopy(other); }
+	vertex_object_string& operator= (const vertex_object_string& other)
+	{	selfcopy(other); return *this; }
+	vertex_object_string (std::string& x, std::string& y, std::string& z)
 	{
-		for (int i=0; i<3; ++i)
-			vertex[i] = other.vertex[i];
+		this->vertex[0] = x;
+		this->vertex[1] = y;
+		this->vertex[2] = z;
 	}
+	template <typename floating>
+	vertex_object_string (floating x, floating y, floating z)
+	{
+		this->vertex[0] = value_to_string(x);
+		this->vertex[1] = value_to_string(y);
+		this->vertex[2] = value_to_string(z);
+	}
+};
+
+template <typename floating>
+class vertex_object_value : public vertex_object_operation<floating>
+{
 public:	
 	vertex_object_value (const vertex_object_value& other)
 	{	selfcopy(other); }
@@ -84,34 +81,17 @@ public:
 	{	selfcopy(other); return *this; }
 	vertex_object_value (floating x, floating y, floating z)
 	{
-		vertex[0] = x;
-		vertex[1] = y;
-		vertex[2] = z;
+		this->vertex[0] = x;
+		this->vertex[1] = y;
+		this->vertex[2] = z;
 	}
-	vertex_object_value (std::string x, std::string y, std::string z)
+	vertex_object_value (std::string& x, std::string& y, std::string& z)
 	{
-		vertex[0] = string_to_floating<floating>(x);
-		vertex[1] = string_to_floating<floating>(y);
-		vertex[2] = string_to_floating<floating>(z);
+		this->vertex[0] = string_to_floating<floating>(x);
+		this->vertex[1] = string_to_floating<floating>(y);
+		this->vertex[2] = string_to_floating<floating>(z);
 	}
 	
-	inline floating& operator[] (std::size_t index)
-	{	return vertex[index]; }
-	
-	inline bool operator< (const vertex_object_value& a)
-	{
-		if (vertex[0]!=a.vertex[0]) {return vertex[0]<a.vertex[0];}
-		if (vertex[1]!=a.vertex[1]) {return vertex[1]<a.vertex[1];}
-		                             return vertex[2]<a.vertex[2];
-	}
-	
-	inline bool operator== (const vertex_object_string& a)
-	{
-		if (vertex[0]!=a.vertex[0]) {return false;}
-		if (vertex[1]!=a.vertex[1]) {return false;}
-		if (vertex[2]!=a.vertex[2]) {return false;}
-		return true;
-	}
 };
 
 struct stl_object
