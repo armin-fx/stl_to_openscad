@@ -6,7 +6,8 @@
 
 # Arguments:
 #
-# -all        - create executables for all operating systems (standard)
+# -all        - create executables for all operating systems 
+#               default, if no other system option is set
 # -linux      - create executable for linux
 # -windows    - create executable for windows 32bit and 64bit
 # -win32      - create executable for windows 32bit
@@ -30,6 +31,7 @@ switch_linux=0
 switch_windows32=0
 switch_windows64=0
 target_dir='./bin'
+source=./src/STL_to_OpenScad.cpp
 
 switch_os_complete() {
 	switch_linux=1
@@ -80,9 +82,9 @@ run_upx() {
 }
 
 if [ $switch_linux -eq 1 ]; then
-	g++ $compile_options $compile_options_linux STL_to_OpenScad.cpp -o "$target_dir"/STL_to_OpenScad
+	g++ $compile_options $compile_options_linux $source -o "$target_dir"/STL_to_OpenScad
 else
-	g++ $compile_options $compile_options_linux STL_to_OpenScad.cpp -o /dev/null
+	g++ $compile_options $compile_options_linux $source -o /dev/null
 fi
 
 if [ $? -eq 0 ]; then
@@ -94,8 +96,8 @@ if [ $? -eq 0 ]; then
 		echo '   ---------  -----------'
 	fi
 	[ $switch_linux     -eq 1 ] && run_upx "$target_dir"/STL_to_OpenScad &
-	[ $switch_windows32 -eq 1 ] && i686-w64-mingw32-g++   $compile_options $compile_options_win STL_to_OpenScad.cpp -o "$target_dir"/STL_to_OpenScad32.exe && run_upx "$target_dir"/STL_to_OpenScad32.exe &
-	[ $switch_windows64 -eq 1 ] && x86_64-w64-mingw32-g++ $compile_options $compile_options_win STL_to_OpenScad.cpp -o "$target_dir"/STL_to_OpenScad64.exe && run_upx "$target_dir"/STL_to_OpenScad64.exe &
+	[ $switch_windows32 -eq 1 ] && i686-w64-mingw32-g++   $compile_options $compile_options_win $source -o "$target_dir"/STL_to_OpenScad32.exe && run_upx "$target_dir"/STL_to_OpenScad32.exe &
+	[ $switch_windows64 -eq 1 ] && x86_64-w64-mingw32-g++ $compile_options $compile_options_win $source -o "$target_dir"/STL_to_OpenScad64.exe && run_upx "$target_dir"/STL_to_OpenScad64.exe &
 fi
 
 wait
