@@ -16,6 +16,8 @@ void data::load_arguments (int argc, char **argv)
 		{
 			if      (equal_arguments(argv[i], "--help" ,"-?"))  do_show_help = true;
 			else if (equal_arguments(argv[i], "--force","-f"))  do_overwrite = true;
+			else if (equal_arguments(argv[i], "--points-faces","-p"))  do_write_faces = true;
+			else if (equal_arguments(argv[i], "--points-only" ,"-P"))  do_write_faces = false;
 			else if (equal_arguments(argv[i], "--language"))
 			{
 				if (i+1 < argc && ! is_argument(argv[i+1]))
@@ -134,7 +136,8 @@ void data::convert ()
 			return;
 	}
 	
-	write_scad();
+	if (do_write_faces) write_scad_compressed();
+	else                write_scad();
 }
 
 void data::read_stl_ascii ()
@@ -236,6 +239,38 @@ void data::write_scad ()
 
 void data::write_scad_compressed ()
 {
+	// compress data
+	size_t size = stl.vertices.size();
+	//
+	struct data_element {vertex_object_string p; size_t i;} ;
+	std::vector <data_element> data;
+	for (size_t i=0; i<size; ++i) data.push_back( {stl.vertices[i], i} );
+	//
+	std::sort (data.begin(), data.end(), [](data_element& a, data_element& b) {return a.p<b.p;} );
+	//
+	std::vector<vertex_object_string> points;
+	for (auto e : data) { points.push_back(e.p);}
+	auto new_end = std::unique(points.begin(), points.end());
+	points.erase (new_end, points.end());
+	//
+	//
+	struct index_element {size_t old; size_t n;} ;
+	std::vector <index_element> index_list;
+	for (size_t i=0, new_i=0; i<size;
+	            ++i, new_i=new_i + (data[i-1].p==data[i].p ? 0:1) )
+	{	index_list.push_back ({data[i].i, new_i}); }
+	//
+	std::sort (index_list.begin(), index_list.end(), [](index_element& a, index_element& b) {return a.old<b.old;} );
+	//
+	// create triangle list
+	std::vector< std::vector<size_t> > faces;
+	for (size_t i=0; i<size; i=i+3)
+	{
+		faces.push_back( {index_list[i].n, index_list[i+1].n, index_list[i+2].n} );
+	}
+	
+	
+	// write file
 	open_output();
 	
 	*output <<
@@ -245,9 +280,9 @@ void data::write_scad_compressed ()
 		"p=[ "
 		;
 	int i=0;
-	for (auto pos = stl.vertices.begin(); pos != stl.vertices.end(); ++pos, ++i)
+	for (auto pos = points.begin(); pos != points.end(); ++pos, ++i)
 	{
-		if (pos != stl.vertices.begin()) *output << ',';
+		if (pos != points.begin()) *output << ',';
 		if (i == 8)
 		{
 			*output << '\n';
@@ -258,7 +293,22 @@ void data::write_scad_compressed ()
 	}
 	*output <<
 		" ];\n"
-		"f=[for (i=[0:3:len(p)-1]) [i,i+1,i+2]];\n"
+		"f=[ "
+		;
+	i=0;
+	for (auto pos = faces.begin(); pos != faces.end(); ++pos, ++i)
+	{
+		if (pos != faces.begin()) *output << ',';
+		if (i == 8)
+		{
+			*output << '\n';
+			i = 0;
+		}
+		*output << '[' << (*pos)[0] << ',' << (*pos)[1] << ',' << (*pos)[2] << ']';
+		
+	}
+	*output <<
+		" ];\n"
 		"polyhedron(points=p,faces=f);\n"
 		"}\n"
 		;

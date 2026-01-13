@@ -49,6 +49,21 @@ public:
 	
 	inline std::string& operator[] (std::size_t index)
 	{	return vertex[index]; }
+	
+	inline bool operator< (const vertex_object_string& a)
+	{
+		if (vertex[0]!=a.vertex[0]) {return vertex[0]<a.vertex[0];}
+		if (vertex[1]!=a.vertex[1]) {return vertex[1]<a.vertex[1];}
+		                             return vertex[2]<a.vertex[2];
+	}
+	
+	inline bool operator== (const vertex_object_string& a)
+	{
+		if (vertex[0]!=a.vertex[0]) {return false;}
+		if (vertex[1]!=a.vertex[1]) {return false;}
+		if (vertex[2]!=a.vertex[2]) {return false;}
+		return true;
+	}
 };
 
 template <typename floating>
@@ -82,6 +97,21 @@ public:
 	
 	inline floating& operator[] (std::size_t index)
 	{	return vertex[index]; }
+	
+	inline bool operator< (const vertex_object_value& a)
+	{
+		if (vertex[0]!=a.vertex[0]) {return vertex[0]<a.vertex[0];}
+		if (vertex[1]!=a.vertex[1]) {return vertex[1]<a.vertex[1];}
+		                             return vertex[2]<a.vertex[2];
+	}
+	
+	inline bool operator== (const vertex_object_string& a)
+	{
+		if (vertex[0]!=a.vertex[0]) {return false;}
+		if (vertex[1]!=a.vertex[1]) {return false;}
+		if (vertex[2]!=a.vertex[2]) {return false;}
+		return true;
+	}
 };
 
 struct stl_object
@@ -105,8 +135,7 @@ public:
 	std::ostream*  output = nullptr;
 	bool do_overwrite = false;
 	//
-	bool do_find_double_vertices = false;
-	bool do_write_faces          = false;
+	bool do_write_faces = true;
 	//
 	stl_object stl;
 	
