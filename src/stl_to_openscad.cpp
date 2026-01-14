@@ -1,4 +1,4 @@
-// STL_to_OpenScad - Wandelt STL-Dateien in OpenScad-Dateien um
+// stl_to_openscad - Wandelt STL-Dateien in OpenScad-Dateien um
 //
 
 #include <exception>

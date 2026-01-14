@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# This script is to create executables for STL to OpenScad Konverter
+# This script is to create executables for STL to OpenSCAD converter
 # This script run under Linux
 # and should run under Mac OS X, as well as Windows with Cygwin.
 
@@ -13,7 +13,7 @@
 # -win32      - create executable for windows 32bit
 # -win64      - create executable for windows 64bit
 #
-# -upx        - compress executable files with upx (standard)
+# -upx        - compress executable files with upx (default)
 # -upx-good   - compress executable files with upx with better compression
 # -upx-max    - compress executable files with upx with maximum compression, very slow
 # -upx-no     - disable compress executables
@@ -31,7 +31,7 @@ switch_linux=0
 switch_windows32=0
 switch_windows64=0
 target_dir='./bin'
-source=./src/STL_to_OpenScad.cpp
+source=./src/stl_to_openscad.cpp
 
 switch_os_complete() {
 	switch_linux=1
@@ -71,18 +71,18 @@ fi
 
 run_upx() {
 	if   [ $switch_upx -eq 1 ]; then
-		upx $1 | grep "STL_to_OpenScad" -
+		upx $1 | grep "stl_to_openscad" -
 	elif [ $switch_upx -eq 2 ]; then
-		upx --best $1 | grep "STL_to_OpenScad" -
+		upx --best $1 | grep "stl_to_openscad" -
 	elif [ $switch_upx -eq 3 ]; then
-		upx --ultra-brute $1 | grep "STL_to_OpenScad" -
+		upx --ultra-brute $1 | grep "stl_to_openscad" -
 	else
 		ls -al $1 | awk '{printf("%*s    %s\n", 10, $5, $9)}'
 	fi
 }
 
 if [ $switch_linux -eq 1 ]; then
-	g++ $compile_options $compile_options_linux $source -o "$target_dir"/STL_to_OpenScad
+	g++ $compile_options $compile_options_linux $source -o "$target_dir"/stl_to_openscad
 else
 	g++ $compile_options $compile_options_linux $source -o /dev/null
 fi
@@ -95,9 +95,9 @@ if [ $? -eq 0 ]; then
 		echo '   File size  Name'
 		echo '   ---------  -----------'
 	fi
-	[ $switch_linux     -eq 1 ] && run_upx "$target_dir"/STL_to_OpenScad &
-	[ $switch_windows32 -eq 1 ] && i686-w64-mingw32-g++   $compile_options $compile_options_win $source -o "$target_dir"/STL_to_OpenScad32.exe && run_upx "$target_dir"/STL_to_OpenScad32.exe &
-	[ $switch_windows64 -eq 1 ] && x86_64-w64-mingw32-g++ $compile_options $compile_options_win $source -o "$target_dir"/STL_to_OpenScad64.exe && run_upx "$target_dir"/STL_to_OpenScad64.exe &
+	[ $switch_linux     -eq 1 ] && run_upx "$target_dir"/stl_to_openscad &
+	[ $switch_windows32 -eq 1 ] && i686-w64-mingw32-g++   $compile_options $compile_options_win $source -o "$target_dir"/stl_to_openscad32.exe && run_upx "$target_dir"/stl_to_openscad32.exe &
+	[ $switch_windows64 -eq 1 ] && x86_64-w64-mingw32-g++ $compile_options $compile_options_win $source -o "$target_dir"/stl_to_openscad64.exe && run_upx "$target_dir"/stl_to_openscad64.exe &
 fi
 
 wait

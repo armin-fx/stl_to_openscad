@@ -5,8 +5,8 @@
 #include <string>
 #include <cstdlib>
 
-const char* program_name    = "STL_to_OpenScad";
-const char* program_version = "alpha";
+const char* program_name    = "stl_to_openscad";
+const char* program_version = "1.0.0";
 
 class text_list
 {
