@@ -60,6 +60,24 @@ done
 # test for standard setting
 [ $switch_linux -eq 0 ] && [ $switch_windows32 -eq 0 ] && [ $switch_windows64 -eq 0 ] && switch_os_complete
 
+# test for installed programs
+if ! command -v g++ > /dev/null; then
+	echo Please install programm g++
+	exit
+fi
+if ! command -v i686-w64-mingw32-g++ > /dev/null && [ $switch_windows32 -ne 0 ]; then
+	echo i686-w64-mingw32-g++ is not installed. Can not compile Windows 32bit program.
+	switch_windows32=0
+fi
+if ! command -v x86_64-w64-mingw32-g++ > /dev/null && [ $switch_windows64 -ne 0 ]; then
+	echo x86_64-w64-mingw32-g++ is not installed. Can not compile Windows 64bit program.
+	switch_windows64=0
+fi
+if ! command -v upx > /dev/null && [ $switch_upx -ne 0 ]; then
+	echo upx is not installed. The target program will not be compressed.
+	switch_upx=0
+fi
+
 if [ ! -d "$target_dir" ]; then
 	mkdir "$target_dir"
 fi
@@ -81,12 +99,19 @@ run_upx() {
 	fi
 }
 
+# compile first one to get syntax errors first
 if [ $switch_linux -eq 1 ]; then
-	g++ $compile_options $compile_options_linux $source -o "$target_dir"/stl_to_openscad
-else
-	g++ $compile_options $compile_options_linux $source -o /dev/null
+	g++                    $compile_options $compile_options_linux $source -o "$target_dir"/stl_to_openscad
+	switch_linux=2
+elif [ $switch_windows32 -eq 1 ]; then
+	i686-w64-mingw32-g++   $compile_options $compile_options_win   $source -o "$target_dir"/stl_to_openscad32.exe
+	switch_windows32=2
+elif [ $switch_windows32 -eq 1 ]; then
+	x86_64-w64-mingw32-g++ $compile_options $compile_options_win   $source -o "$target_dir"/stl_to_openscad64.exe
+	switch_windows64=2
 fi
 
+# compile and compress only if no error occurs
 if [ $? -eq 0 ]; then
 	if   [ $switch_upx -ne 0 ]; then
 		echo '        File size         Ratio      Format      Name'
@@ -95,9 +120,12 @@ if [ $? -eq 0 ]; then
 		echo '   File size  Name'
 		echo '   ---------  -----------'
 	fi
-	[ $switch_linux     -eq 1 ] && run_upx "$target_dir"/stl_to_openscad &
-	[ $switch_windows32 -eq 1 ] && i686-w64-mingw32-g++   $compile_options $compile_options_win $source -o "$target_dir"/stl_to_openscad32.exe && run_upx "$target_dir"/stl_to_openscad32.exe &
-	[ $switch_windows64 -eq 1 ] && x86_64-w64-mingw32-g++ $compile_options $compile_options_win $source -o "$target_dir"/stl_to_openscad64.exe && run_upx "$target_dir"/stl_to_openscad64.exe &
+	[ $switch_linux     -eq 1 ] && g++                    $compile_options $compile_options_linux $source -o "$target_dir"/stl_to_openscad       && run_upx "$target_dir"/stl_to_openscad &
+	[ $switch_linux     -eq 2 ] && run_upx "$target_dir"/stl_to_openscad &
+	[ $switch_windows32 -eq 1 ] && i686-w64-mingw32-g++   $compile_options $compile_options_win   $source -o "$target_dir"/stl_to_openscad32.exe && run_upx "$target_dir"/stl_to_openscad32.exe &
+	[ $switch_windows32 -eq 2 ] && run_upx "$target_dir"/stl_to_openscad32.exe &
+	[ $switch_windows64 -eq 1 ] && x86_64-w64-mingw32-g++ $compile_options $compile_options_win   $source -o "$target_dir"/stl_to_openscad64.exe && run_upx "$target_dir"/stl_to_openscad64.exe &
+	[ $switch_windows64 -eq 2 ] && run_upx "$target_dir"/stl_to_openscad64.exe &
 fi
 
 wait
