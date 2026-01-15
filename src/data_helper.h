@@ -103,8 +103,8 @@ type read_value_little (std::string::iterator& p, const std::string::iterator& e
 {
 	union
 	{
-		type value = 0;
-		char  bytes[sizeof(type)];
+		type value;
+		char bytes[sizeof(type)];
 	} field;
 	for (int i=0; i<(int)sizeof(type); ++i, ++p)
 	{
@@ -118,7 +118,7 @@ type read_value_big (std::string::iterator& p, const std::string::iterator& end)
 {
 	union
 	{
-		type value = 0;
+		type value;
 		char  bytes[sizeof(type)];
 	} field;
 	for (int i=(int)sizeof(type)-1; i>=0; --i, ++p)
@@ -127,6 +127,16 @@ type read_value_big (std::string::iterator& p, const std::string::iterator& end)
 		field.bytes[i] = *p;
 	}
 	return field.value;
+}
+
+template <typename type> inline
+void ignore_value (std::string::iterator& p, const std::string::iterator& end)
+{
+	for (int i=0; i<(int)sizeof(type); ++i, ++p)
+	{
+		if (p==end) return;
+	}
+	return;
 }
 
 

@@ -53,6 +53,8 @@ void data::prepare_and_identify_files ()
 {
 	if (input!=nullptr || output!=nullptr) close_files();
 	//
+	uintmax_t size = 0;
+	//
 	if (input_filename  == "-") input = &std::cin;
 	else
 	{
@@ -62,6 +64,10 @@ void data::prepare_and_identify_files ()
 			close_files();
 			throw error_file_input_not_found();
 		}
+		try {
+			size = std::filesystem::file_size(input_filename);
+		}
+		catch (std::filesystem::filesystem_error& e) {}
 	}
 	if (output_filename != "-")
 	{
@@ -73,11 +79,18 @@ void data::prepare_and_identify_files ()
 	}
 	// lese die gesamte Datei in einen string
 	input_as_string.clear();
+	input_as_string.reserve (size<96 ? 96 : size);
+	//*
+	input_as_string.append(
+		std::istreambuf_iterator<char>(*input),
+		std::istreambuf_iterator<char>()
+		); //*/
+	/*
 	std::copy(
 		std::istreambuf_iterator<char>(*input),
 		std::istreambuf_iterator<char>(),
 		std::back_inserter(input_as_string)
-		);
+		); //*/
 	
 	std::string first_bytes_with_header = input_as_string.substr(0, 86);
 	if      (header_is_stl_ascii(first_bytes_with_header))
@@ -185,6 +198,7 @@ void data::read_stl_binary ()
 	p += 80; // Header überspringen
 	
 	stl.triangle_count = read_value_little<uint32_t>(p, input_as_string.end());
+	stl.vertices.reserve (stl.triangle_count*3);
 	
 	// REAL32[3] – Normal vector
 	// REAL32[3] – Vertex 1
@@ -197,7 +211,7 @@ void data::read_stl_binary ()
 	while (p != input_as_string.end())
 	{
 		// Ignore Normal Vector
-		for (i=0; i<3; ++i) read_value_little<float>(p, input_as_string.end());
+		for (i=0; i<3; ++i) ignore_value<float>(p, input_as_string.end());
 		// All 3 Vertices
 		for (n=0; n<3; ++n)
 		{
@@ -208,7 +222,7 @@ void data::read_stl_binary ()
 			stl.vertices.push_back( vertex_object_string(val[0],val[1],val[2]) );
 		}
 		// Ignore attribute
-		read_value_little<uint16_t>(p, input_as_string.end());
+		ignore_value<uint16_t>(p, input_as_string.end());
 	}
 }
 
@@ -238,31 +252,37 @@ void data::write_scad_compressed ()
 	size_t size = stl.vertices.size();
 	//
 	struct data_element {vertex_object_string p; size_t i;} ;
-	std::vector <data_element> data;
-	for (size_t i=0; i<size; ++i) data.push_back( {stl.vertices[i], i} );
+	std::vector <data_element> datav;
+	datav.reserve (size);
+	for (size_t i=0; i<size; ++i) datav.push_back( {stl.vertices[i], i} );
 	//
-	std::sort (data.begin(), data.end(), [](data_element& a, data_element& b) {return a.p<b.p;} );
+	std::sort (datav.begin(), datav.end(), [](data_element& a, data_element& b) {return a.p<b.p;} );
 	//
 	std::vector<vertex_object_string> points;
-	for (auto e : data) { points.push_back(e.p);}
+	points.reserve (size);
+	for (auto e : datav) { points.push_back(e.p);}
 	auto new_end = std::unique(points.begin(), points.end());
 	points.erase (new_end, points.end());
 	//
 	//
 	struct index_element {size_t old; size_t n;} ;
 	std::vector <index_element> index_list;
+	index_list.reserve (size);
 	for (size_t i=0, new_i=0; i<size;
-	            ++i, new_i=new_i + (data[i-1].p==data[i].p ? 0:1) )
-	{	index_list.push_back ({data[i].i, new_i}); }
+	            ++i, new_i=new_i + (datav[i-1].p==datav[i].p ? 0:1) )
+	{	index_list.push_back ({datav[i].i, new_i}); }
+	datav.clear(); datav.shrink_to_fit();
 	//
 	std::sort (index_list.begin(), index_list.end(), [](index_element& a, index_element& b) {return a.old<b.old;} );
 	//
 	// create triangle list
 	std::vector< std::vector<size_t> > faces;
+	faces.reserve (ceil(float(size)/3));
 	for (size_t i=0; i<size; i=i+3)
 	{
 		faces.push_back( {index_list[i].n, index_list[i+1].n, index_list[i+2].n} );
 	}
+	index_list.clear(); index_list.shrink_to_fit();
 	
 	
 	// write file

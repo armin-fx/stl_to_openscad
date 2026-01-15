@@ -23,7 +23,7 @@ Building stl_to_openscad
 ------------------------
 
 To build this from source you have to compile file `src/stl_to_openscad.cpp`.
-It is written in standard C++11 and should work on every system.
+It is written in standard C++17 and should work on every system.
 
 ### Tested in Linux Mint:
 You can run to create linux and windows versions of stl_to_openscad with:

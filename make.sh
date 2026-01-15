@@ -26,7 +26,7 @@
 
 
 #compile_options='-std=c++11 -O3 -s -fno-rtti'
-compile_options='-std=c++11 -O3 -s'
+compile_options='-std=c++17 -O3 -s'
 compile_options_win='-static'
 compile_options_linux='-Wall -pedantic'
 
