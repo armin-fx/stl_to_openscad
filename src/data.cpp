@@ -72,7 +72,6 @@ void data::prepare_and_identify_files ()
 		}
 	}
 	// lese die gesamte Datei in einen string
-	//TODO hoher Speicherverbrauch, wird noch geändert
 	input_as_string.clear();
 	std::copy(
 		std::istreambuf_iterator<char>(*input),
@@ -109,16 +108,22 @@ void data::open_output ()
 	}
 }
 
-void data::close_output ()
+inline void data::close_output ()
 {
 	if (output_file != nullptr) delete output_file;
 	output = output_file = nullptr;
 }
 
-void data::close_input ()
+inline void data::close_input ()
 {
-	if (output_file != nullptr) delete output_file;
-	output = output_file = nullptr;
+	if (input_file != nullptr) delete input_file;
+	input = input_file = nullptr;
+}
+
+inline void data::close_files()
+{
+	close_output();
+	close_input();
 }
 
 void data::convert ()
@@ -142,6 +147,8 @@ void data::convert ()
 
 void data::read_stl_ascii ()
 {
+	stl.vertices.clear();
+	
 	std::regex  pattern_model ("solid.*\\s?([\\s\\S]*?)endsolid");
 	std::smatch matches_model;
 	
@@ -174,7 +181,7 @@ void data::read_stl_binary ()
 {
 	stl.vertices.clear();
 	
-	std::string::iterator p = input_as_string.begin();
+	auto p = input_as_string.begin();
 	p += 80; // Header überspringen
 	
 	stl.triangle_count = read_value_little<uint32_t>(p, input_as_string.end());
@@ -213,22 +220,10 @@ void data::write_scad ()
 		"object1();\n"
 		"\n"
 		"module object1() {\n"
-		"p=[ "
+		"p="
 		;
-	int i=0;
-	for (auto pos = stl.vertices.begin(); pos != stl.vertices.end(); ++pos, ++i)
-	{
-		if (pos != stl.vertices.begin()) *output << ',';
-		if (i == 8)
-		{
-			*output << '\n';
-			i = 0;
-		}
-		*output << '[' << (*pos)[0] << ',' << (*pos)[1] << ',' << (*pos)[2] << ']';
-		
-	}
+	write_list_triangle (stl.vertices);
 	*output <<
-		" ];\n"
 		"f=[for (i=[0:3:len(p)-1]) [i,i+1,i+2]];\n"
 		"polyhedron(points=p,faces=f);\n"
 		"}\n"
@@ -277,43 +272,39 @@ void data::write_scad_compressed ()
 		"object1();\n"
 		"\n"
 		"module object1() {\n"
-		"p=[ "
+		"p="
 		;
-	int i=0;
-	for (auto pos = points.begin(); pos != points.end(); ++pos, ++i)
-	{
-		if (pos != points.begin()) *output << ',';
-		if (i == 8)
-		{
-			*output << '\n';
-			i = 0;
-		}
-		*output << '[' << (*pos)[0] << ',' << (*pos)[1] << ',' << (*pos)[2] << ']';
-		
-	}
+	write_list_triangle (points);
+	//
+	*output << "f=";
+	write_list_triangle (faces);
+	//
 	*output <<
-		" ];\n"
-		"f=[ "
-		;
-	i=0;
-	for (auto pos = faces.begin(); pos != faces.end(); ++pos, ++i)
-	{
-		if (pos != faces.begin()) *output << ',';
-		if (i == 8)
-		{
-			*output << '\n';
-			i = 0;
-		}
-		*output << '[' << (*pos)[0] << ',' << (*pos)[1] << ',' << (*pos)[2] << ']';
-		
-	}
-	*output <<
-		" ];\n"
 		"polyhedron(points=p,faces=f);\n"
 		"}\n"
 		;
 	
 	close_output();
+}
+
+template <typename container>
+void data::write_list_triangle (container& list, int entry_per_line)
+{
+	*output << "[ ";
+		;
+	int i=0;
+	for (auto pos = list.begin(); pos != list.end(); ++pos, ++i)
+	{
+		if (pos != list.begin()) *output << ',';
+		if (i == 8)
+		{
+			*output << '\n';
+			i = 0;
+		}
+		*output << '[' << (*pos)[0] << ',' << (*pos)[1] << ',' << (*pos)[2] << ']';
+		
+	}
+	*output << " ];\n";
 }
 
 

@@ -6,7 +6,7 @@
 #include <cstdlib>
 
 const char* program_name    = "stl_to_openscad";
-const char* program_version = "1.0.0";
+const char* program_version = "1.0.1";
 
 class text_list
 {
@@ -89,11 +89,11 @@ inline text_basic* get_language_object () { return get_language_object(get_langu
 std::string list_all_languages ()
 {
 	std::string str;
-	for (languages_type::iterator entry=languages.begin(); entry!=languages.end(); ++entry)
+	for (auto entry : languages)
 	{
-		str += entry->first;
-		str.append(std::max<int>(1, 12 - entry->first.size()), ' ');
-		str += "=> " + entry->second->get_language() + '\n';
+		str += entry.first;
+		str.append(std::max<int>(1, 12 - entry.first.size()), ' ');
+		str += "=> " + entry.second->get_language() + '\n';
 	}
 	return str;
 }

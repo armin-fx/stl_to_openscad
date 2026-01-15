@@ -26,21 +26,22 @@ public:
 protected:
 	void selfcopy (const vertex_object_operation& other)
 	{
-		for (int i=0; i<3; ++i)
-			this->vertex[i] = other.vertex[i];
+		this->vertex[0] = other.vertex[0];
+		this->vertex[1] = other.vertex[1];
+		this->vertex[2] = other.vertex[2];
 	}
 public:
-	inline floating& operator[] (std::size_t index)
+	floating& operator[] (std::size_t index)
 	{	return vertex[index]; }
 	
-	inline bool operator< (const vertex_object_operation& a)
+	bool operator< (const vertex_object_operation& a)
 	{
 		if (vertex[0]!=a.vertex[0]) {return vertex[0]<a.vertex[0];}
 		if (vertex[1]!=a.vertex[1]) {return vertex[1]<a.vertex[1];}
 		                             return vertex[2]<a.vertex[2];
 	}
 	
-	inline bool operator== (const vertex_object_operation& a)
+	bool operator== (const vertex_object_operation& a)
 	{
 		if (vertex[0]!=a.vertex[0]) {return false;}
 		if (vertex[1]!=a.vertex[1]) {return false;}
@@ -129,20 +130,16 @@ public:
 	void open_output ();
 	void close_output ();
 	void close_input ();
-	inline
 	void close_files ();
 	void read_stl_ascii ();
 	void read_stl_binary ();
 	void convert ();
 	void write_scad ();
 	void write_scad_compressed ();
+protected:
+	template <typename container>
+	void write_list_triangle (container& list, int entry_per_line=8);
 };
 
-
-void data::close_files()
-{
-	close_output();
-	close_input();
-}
 
 #endif // _data_h_

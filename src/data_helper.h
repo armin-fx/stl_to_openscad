@@ -130,46 +130,46 @@ type read_value_big (std::string::iterator& p, const std::string::iterator& end)
 }
 
 
-template <class ForwardIterator, class Container>
+template <class ForwardIterator, class Container> inline
 ForwardIterator search_all (ForwardIterator first, ForwardIterator last, Container container)
 {	return search(first, last, std::begin(container), std::end(container)); }
-template <class ForwardIterator, class Container, class BinaryPredicate>
+template <class ForwardIterator, class Container, class BinaryPredicate> inline
 ForwardIterator search_all (ForwardIterator first, ForwardIterator last, Container container, BinaryPredicate pred)
 {	return search(first, last, std::begin(container), std::end(container), pred); }
 //
-template <class ForwardIterator>
+template <class ForwardIterator> inline
 ForwardIterator search_all
 	(ForwardIterator first, ForwardIterator last, const char* str)
 {	return search(first, last, str, str + std::strlen(str)); }
-template <class ForwardIterator, class BinaryPredicate>
+template <class ForwardIterator, class BinaryPredicate> inline
 ForwardIterator search_all
 	(ForwardIterator first, ForwardIterator last, const char* str, BinaryPredicate pred)
 {	return search(first, last, str, str + std::strlen(str), pred); }
 
-template <typename T>
+template <typename T> inline
 void copy_array(T source, T destination)
 {
 	std::copy(std::begin(source), std::end(source), std::begin(destination));
 }
 
 
-bool equal_argument (const char* value, const char* argument)
+inline bool equal_argument (const char* value, const char* argument)
 {
 	return strcmp(value, argument) == 0;
 }
-bool equal_arguments (const char* value, const char* a1, const char* a2=nullptr, const char* a3=nullptr)
+inline bool equal_arguments (const char* value, const char* a1, const char* a2=nullptr, const char* a3=nullptr)
 {
 	if                    (equal_argument(value, a1)) return true;
 	if (a2 != nullptr) if (equal_argument(value, a2)) return true;
 	if (a3 != nullptr) if (equal_argument(value, a3)) return true;
 	return false;
 }
-bool is_argument (const char* value)
+inline bool is_argument (const char* value)
 {
 	return (strncmp(value, "-", 1) == 0) && (strlen(value) > 1);
 }
 
-bool file_exist (std::string filename)
+inline bool file_exist (std::string filename)
 {
 	std::ifstream file (filename);
 	if (file.is_open())
