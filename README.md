@@ -35,7 +35,7 @@ This will build the executable files into directory `./bin`.
 You have to install some programs:
 ```
 # to create (linux) programs in C++
-sudo apt-get install g++
+sudo apt install g++
 
 # optional, to create Windows programs
 sudo apt install mingw-w64 g++-mingw-w64
